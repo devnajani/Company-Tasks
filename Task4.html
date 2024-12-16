@@ -1,0 +1,130 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Shopping Cart</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      margin: 20px;
+    }
+    h1 {
+      color: #333;
+    }
+    ul {
+      list-style: none;
+      padding: 0;
+    }
+    li {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 10px;
+      padding: 10px;
+      border: 1px solid #ddd;
+      border-radius: 5px;
+    }
+    .empty-cart {
+      color: #888;
+      font-style: italic;
+    }
+    button {
+      margin-left: 5px;
+      padding: 5px 10px;
+      border: none;
+      background-color: #007bff;
+      color: #fff;
+      border-radius: 3px;
+      cursor: pointer;
+    }
+    button:disabled {
+      background-color: #ccc;
+      cursor: not-allowed;
+    }
+    .total {
+      margin-top: 20px;
+      font-weight: bold;
+    }
+  </style>
+</head>
+<body>
+  <h1>Shopping Cart</h1>
+  <ul id="cart-list"></ul>
+  <button id="add-item-btn">Add Sample Item</button>
+  <p class="total">Total: $<span id="total-price">0.00</span></p>
+
+  <script>
+    const cart = [];
+const cartList = document.getElementById("cart-list");
+const totalPriceEl = document.getElementById("total-price");
+const addItemBtn = document.getElementById("add-item-btn");
+
+const renderCart = () => {
+  cartList.innerHTML = "";
+
+  if (cart.length === 0) {
+    cartList.innerHTML = '<p class="empty-cart">Your cart is empty</p>';
+    updateTotalPrice();
+    return;
+  }
+
+  cart.forEach((item, index) => {
+    const listItem = document.createElement("li");
+
+    listItem.innerHTML = `
+      <span>${item.name} - $${item.price.toFixed(2)}</span>
+      <span>Quantity: ${item.quantity}</span>
+      <button onclick="updateItemQuantity(${index}, -1)" ${item.quantity === 0 ? "disabled" : ""}>-</button>
+      <button onclick="updateItemQuantity(${index}, 1)">+</button>
+      <button onclick="removeItem(${index})">Remove</button>
+    `;
+
+    cartList.appendChild(listItem);
+  });
+
+  updateTotalPrice();
+};
+
+const addItem = (item) => {
+  const existingItem = cart.find((cartItem) => cartItem.id === item.id);
+
+  if (existingItem) {
+    existingItem.quantity += 1;
+  } else {
+    cart.push({ ...item, quantity: 1 });
+  }
+
+  renderCart();
+};
+
+const removeItem = (index) => {
+  cart.splice(index, 1);
+  renderCart();
+};
+
+const updateItemQuantity = (index, change) => {
+  cart[index].quantity = Math.max(0, cart[index].quantity + change);
+
+  if (cart[index].quantity === 0) {
+    cart.splice(index, 1);
+  }
+
+  renderCart();
+};
+
+const updateTotalPrice = () => {
+  const totalPrice = cart.reduce((total, item) => total + item.price * item.quantity, 0);
+  totalPriceEl.textContent = totalPrice.toFixed(2);
+};
+
+addItemBtn.addEventListener("click", () => {
+  const sampleItem = { id: 1, name: "Sample Item", price: 10.0 };
+  addItem(sampleItem);
+});
+
+renderCart();
+
+  </script>
+</body>
+</html>
